@@ -1,0 +1,42 @@
+/* Profile specific styles */
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2196F3, #1976D2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.skill-item {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.skill-level-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.level-1 { background-color: #fee2e2; color: #991b1b; }
+.level-2 { background-color: #fef3c7; color: #92400e; }
+.level-3 { background-color: #dbeafe; color: #1e40af; }
+.level-4 { background-color: #d1fae5; color: #065f46; }
+.level-5 { background-color: #e0e7ff; color: #3730a3; }
+
+.readonly-field {
+  background-color: #f8f9fa;
+  border-color: #e9ecef;
+  cursor: not-allowed;
+}

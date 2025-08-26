@@ -1,0 +1,21 @@
+/* Employee skill component styles */
+.skill-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.skill-card:hover {
+  transform: translateY(-1px);
+}
+
+.certification-badge {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}

@@ -1,0 +1,335 @@
+openapi: 3.0.0
+info:
+  title: API Matchnhire Nodejs
+  version: 1.0.0
+  description: API de gestion des moyens et fiches de poste
+servers:
+  - url: http://localhost:3000/api
+
+paths:
+  /moyens:
+    get:
+      summary: Récupérer tous les moyens
+      tags: [Moyens]
+      responses:
+        "200":
+          description: Liste des moyens
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Moyen"
+
+    post:
+      summary: Créer un moyen
+      tags: [Moyens]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MoyenInput"
+      responses:
+        "201":
+          description: Moyen créé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Moyen"
+
+  /moyens/{id}:
+    get:
+      summary: Récupérer un moyen par ID
+      tags: [Moyens]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Moyen trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Moyen"
+        "404":
+          description: Moyen non trouvé
+
+    put:
+      summary: Mettre à jour un moyen
+      tags: [Moyens]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MoyenInput"
+      responses:
+        "200":
+          description: Moyen mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Moyen"
+
+    delete:
+      summary: Supprimer un moyen
+      tags: [Moyens]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Moyen supprimé
+
+  /jobdescriptions:
+    get:
+      summary: Récupérer toutes les fiches de poste
+      tags: [JobDescriptions]
+      responses:
+        "200":
+          description: Liste des fiches de poste
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JobDescription"
+
+    post:
+      summary: Créer une fiche de poste
+      tags: [JobDescriptions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobDescriptionInput"
+      responses:
+        "201":
+          description: Fiche créée
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobDescription"
+
+  /jobdescriptions/{id}:
+    get:
+      summary: Récupérer une fiche par ID
+      tags: [JobDescriptions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Fiche trouvée
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobDescription"
+        "404":
+          description: Fiche non trouvée
+
+    put:
+      summary: Mettre à jour une fiche de poste
+      tags: [JobDescriptions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobDescriptionInput"
+      responses:
+        "200":
+          description: Fiche mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobDescription"
+
+    delete:
+      summary: Supprimer une fiche de poste
+      tags: [JobDescriptions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Fiche supprimée
+        "404":
+          description: Fiche non trouvée
+
+components:
+  schemas:
+    Moyen:
+      type: object
+      properties:
+        id:
+          type: integer
+        moyen:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    MoyenInput:
+      type: object
+      required:
+        - moyen
+      properties:
+        moyen:
+          type: string
+
+    JobDescription:
+      type: object
+      properties:
+        id:
+          type: integer
+        emploi:
+          type: string
+        filiere_activite:
+          type: string
+        famille:
+          type: string
+        superieur_n1:
+          type: integer
+        superieur_n2:
+          type: integer
+        finalite:
+          type: string
+        niveau_exigence:
+          type: string
+        niveau_exp:
+          type: string
+        status:
+          type: string
+        version:
+          type: string
+        missions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ItemWithId"
+        savoirs:
+          type: array
+          items:
+            $ref: "#/components/schemas/ItemWithId"
+        savoirFaires:
+          type: array
+          items:
+            $ref: "#/components/schemas/ItemWithId"
+        savoirEtres:
+          type: array
+          items:
+            $ref: "#/components/schemas/ItemWithId"
+        moyens:
+          type: array
+          items:
+            $ref: "#/components/schemas/ItemWithId"
+        airesProximites:
+          type: array
+          items:
+            $ref: "#/components/schemas/AireProximite"
+
+    JobDescriptionInput:
+      type: object
+      required: [emploi, filiere_activite, famille]
+      properties:
+        emploi:
+          type: string
+        filiere_activite:
+          type: string
+        famille:
+          type: string
+        superieur_n1:
+          type: integer
+        superieur_n2:
+          type: integer
+        finalite:
+          type: string
+        niveau_exigence:
+          type: string
+        niveau_exp:
+          type: string
+        status:
+          type: string
+        version:
+          type: string
+        missions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ItemWithId"
+        savoirs:
+          type: array
+          items:
+            $ref: "#/components/schemas/ItemWithId"
+        savoirFaires:
+          type: array
+          items:
+            $ref: "#/components/schemas/ItemWithId"
+        savoirEtres:
+          type: array
+          items:
+            $ref: "#/components/schemas/ItemWithId"
+        moyens:
+          type: array
+          items:
+            $ref: "#/components/schemas/ItemWithId"
+        airesProximites:
+          type: array
+          items:
+            $ref: "#/components/schemas/AireProximite"
+
+    ItemWithId:
+      type: object
+      properties:
+        id:
+          type: integer
+        mission:
+          type: string
+        connaissance:
+          type: string
+        competence:
+          type: string
+        comportement:
+          type: string
+        niveau:
+          type: string
+        moyen:
+          type: string
+
+    AireProximite:
+      type: object
+      properties:
+        id:
+          type: integer
+        poste:
+          type: string
+        nombre:
+          type: integer

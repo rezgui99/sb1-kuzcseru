@@ -1,0 +1,113 @@
+<div class="p-6">
+  <h2 class="text-3xl font-bold text-primary mb-6">Organigramme</h2>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center text-primary py-8">
+    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    <p class="mt-2">Chargement de l'organigramme...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage" class="mt-4 p-3 bg-red-100 text-red-700 rounded-md">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Organigramme Content -->
+  <div *ngIf="!loading && !errorMessage">
+    <!-- Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="card text-center bg-gradient-to-br from-blue-50 to-blue-100">
+        <div class="text-3xl font-bold text-primary mb-2">{{ employees.length }}</div>
+        <div class="text-gray-600">Employés totaux</div>
+      </div>
+      <div class="card text-center bg-gradient-to-br from-green-50 to-green-100">
+        <div class="text-3xl font-bold text-green-600 mb-2">{{ jobDescriptions.length }}</div>
+        <div class="text-gray-600">Postes totaux</div>
+      </div>
+      <div class="card text-center bg-gradient-to-br from-red-50 to-red-100">
+        <div class="text-3xl font-bold text-red-600 mb-2">{{ jobDescriptions.filter(job => getEmployeesForJob(job.id!).length === 0).length }}</div>
+        <div class="text-gray-600">Postes vacants</div>
+      </div>
+    </div>
+
+    <!-- Job Descriptions List -->
+    <div class="space-y-4">
+      <div *ngFor="let job of jobDescriptions" class="card">
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex-1">
+            <h3 class="text-xl font-semibold text-primary mb-2">{{ job.emploi }}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+              <div>
+                <span class="font-medium">Filière:</span> {{ job.filiere_activite }}
+              </div>
+              <div>
+                <span class="font-medium">Famille:</span> {{ job.famille }}
+              </div>
+              <div *ngIf="job.superieur_n1">
+                <span class="font-medium">Supérieur N1:</span> {{ getSuperieurName(job.superieur_n1) }}
+              </div>
+              <div *ngIf="job.superieur_n2">
+                <span class="font-medium">Supérieur N2:</span> {{ getSuperieurName(job.superieur_n2) }}
+              </div>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                  [class]="getEmployeesForJob(job.id!).length > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+              {{ getEmployeesForJob(job.id!).length }} employé(s)
+            </span>
+          </div>
+        </div>
+
+        <!-- Employees assigned to this job -->
+        <div *ngIf="getEmployeesForJob(job.id!).length > 0" class="mt-4">
+          <h4 class="font-medium text-gray-900 mb-3">Employés assignés:</h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div *ngFor="let employee of getEmployeesForJob(job.id!)" 
+                 class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold mr-3">
+                {{ employee.name.charAt(0).toUpperCase() }}
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900 truncate">{{ employee.name }}</p>
+                <p class="text-sm text-gray-500 truncate">{{ employee.position }}</p>
+                <p class="text-xs text-gray-400 truncate">{{ employee.email }}</p>
+              </div>
+              <button [routerLink]="['/profile', employee.id]" 
+                      class="text-primary hover:text-blue-700 text-sm font-medium ml-2">
+                Voir profil
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty state for vacant positions -->
+        <div *ngIf="getEmployeesForJob(job.id!).length === 0" class="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+            </svg>
+            <p class="text-sm text-red-800">Ce poste est actuellement vacant</p>
+          </div>
+          <div class="mt-2">
+            <button [routerLink]="['/matching']" [queryParams]="{jobId: job.id}" 
+                    class="text-sm text-red-600 hover:text-red-800 font-medium">
+              → Lancer un matching pour ce poste
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="jobDescriptions.length === 0" class="text-center text-gray-600 py-8">
+      <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H2v-2a3 3 0 015.356-1.857M17 20v-2c0-.653-.146-1.28-.42-1.857M7 20v-2c0-.653.146-1.28.42-1.857M7 20h10m0 0a3 3 0 00-5.356-1.857M7 16.143A3 3 0 0112 13c1.482 0 2.86.51 3.944 1.386M12 14a3 3 0 100-6 3 3 0 000 6z"></path>
+      </svg>
+      <p>Aucune fiche de poste trouvée.</p>
+      <button [routerLink]="['/job-descriptions']" class="btn btn-primary mt-4">
+        Créer une fiche de poste
+      </button>
+    </div>
+  </div>
+</div>

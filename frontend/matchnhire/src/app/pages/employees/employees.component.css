@@ -1,0 +1,46 @@
+/* Additional employees page styles if needed */
+
+/* Styles pour les médailles de classement */
+.bg-gold {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+}
+
+.bg-silver {
+  background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+}
+
+.bg-bronze {
+  background: linear-gradient(135deg, #CD7F32, #B8860B);
+}
+
+/* Animation pour les barres de progression */
+.transition-all {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Styles pour le modal */
+.max-h-96 {
+  max-height: 24rem;
+}
+
+/* Hover effects pour les cartes de matching */
+.hover\:bg-gray-50:hover {
+  background-color: #f9fafb;
+}
+
+/* Styles pour les badges de compétences */
+.bg-green-50 {
+  background-color: #f0fdf4;
+}
+
+.bg-red-50 {
+  background-color: #fef2f2;
+}
+
+.text-green-800 {
+  color: #166534;
+}
+
+.text-red-800 {
+  color: #991b1b;
+}

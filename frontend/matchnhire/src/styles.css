@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-md font-semibold transition-colors duration-200;
+  }
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-blue-700;
+  }
+  .btn-secondary {
+    @apply bg-secondary text-dark hover:bg-yellow-600;
+  }
+  .card {
+    @apply bg-white shadow-md rounded-lg p-6;
+  }
+  .nav-link {
+    @apply flex items-center p-3 rounded-md text-dark hover:bg-primary hover:text-white transition-colors duration-200;
+  }
+  .nav-link.active {
+    @apply bg-primary text-white;
+  }
+}

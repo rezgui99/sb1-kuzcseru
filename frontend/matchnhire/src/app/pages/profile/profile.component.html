@@ -1,0 +1,181 @@
+<div class="p-6 max-w-4xl mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <div class="flex items-center">
+      <button (click)="goBack()" class="mr-4 text-primary hover:text-blue-700">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      <h2 class="text-3xl font-bold text-primary">Profil Employé</h2>
+    </div>
+    <button *ngIf="!isEditing" (click)="toggleEdit()" class="btn btn-primary">
+      Modifier le profil
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="text-center text-primary py-8">
+    Chargement du profil...
+  </div>
+
+  <div *ngIf="errorMessage" class="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="successMessage" class="mb-4 p-3 bg-green-100 text-green-700 rounded-md">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="employee && !loading">
+    <!-- Profile Header -->
+    <div class="card mb-6">
+      <div class="flex items-center space-x-6">
+        <div class="w-24 h-24 bg-primary rounded-full flex items-center justify-center text-white text-3xl font-bold">
+          {{ employee.name.charAt(0).toUpperCase() }}
+        </div>
+        <div>
+          <h3 class="text-2xl font-semibold text-dark">{{ employee.name }}</h3>
+          <p class="text-lg text-gray-600">{{ employee.position }}</p>
+          <p class="text-sm text-gray-500">{{ employee.email }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Form -->
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+      <!-- Basic Information -->
+      <div class="card mb-6">
+        <h4 class="text-xl font-semibold text-dark mb-4">Informations personnelles</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2">Nom complet *</label>
+            <input type="text" formControlName="name" [readonly]="!isEditing"
+                   class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                   [class.bg-gray-100]="!isEditing">
+          </div>
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2">Poste *</label>
+            <input type="text" formControlName="position" [readonly]="!isEditing"
+                   class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                   [class.bg-gray-100]="!isEditing">
+          </div>
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2">Email *</label>
+            <input type="email" formControlName="email" [readonly]="!isEditing"
+                   class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                   [class.bg-gray-100]="!isEditing">
+          </div>
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2">Date d'embauche *</label>
+            <input type="date" formControlName="hire_date" [readonly]="!isEditing"
+                   class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                   [class.bg-gray-100]="!isEditing">
+          </div>
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2">Téléphone</label>
+            <input type="tel" formControlName="phone" [readonly]="!isEditing"
+                   class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                   [class.bg-gray-100]="!isEditing">
+          </div>
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2">Genre</label>
+            <select formControlName="gender" [disabled]="!isEditing"
+                    class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                    [class.bg-gray-100]="!isEditing">
+              <option value="">Sélectionner</option>
+              <option value="Homme">Homme</option>
+              <option value="Femme">Femme</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Localisation</label>
+            <input type="text" formControlName="location" [readonly]="!isEditing"
+                   class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                   [class.bg-gray-100]="!isEditing">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Notes</label>
+            <textarea formControlName="notes" rows="3" [readonly]="!isEditing"
+                      class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                      [class.bg-gray-100]="!isEditing"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skills Section -->
+      <div class="card mb-6">
+        <div class="flex justify-between items-center mb-4">
+          <h4 class="text-xl font-semibold text-dark">Compétences</h4>
+          <button *ngIf="isEditing" type="button" (click)="addSkill()" class="btn btn-secondary">
+            Ajouter une compétence
+          </button>
+        </div>
+
+        <div *ngIf="skillsFormArray.length === 0" class="text-center text-gray-600 py-8">
+          Aucune compétence enregistrée.
+        </div>
+
+        <div formArrayName="skills" class="space-y-4">
+          <div *ngFor="let skillGroup of skillsFormArray.controls; let i = index" 
+               [formGroupName]="i" class="border rounded-lg p-4 bg-gray-50">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Compétence *</label>
+                <select formControlName="skill_id" [disabled]="!isEditing"
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                        [class.bg-gray-100]="!isEditing">
+                  <option value="">Sélectionner une compétence</option>
+                  <option *ngFor="let skill of skills" [value]="skill.id">{{ skill.name }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Niveau *</label>
+                <select formControlName="actual_skill_level_id" [disabled]="!isEditing"
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                        [class.bg-gray-100]="!isEditing">
+                  <option value="">Sélectionner un niveau</option>
+                  <option *ngFor="let level of skillLevels" [value]="level.id">{{ level.level_name }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Date d'acquisition</label>
+                <input type="date" formControlName="acquired_date" [readonly]="!isEditing"
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                       [class.bg-gray-100]="!isEditing">
+              </div>
+              <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Certification</label>
+                <input type="text" formControlName="certification" [readonly]="!isEditing"
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                       [class.bg-gray-100]="!isEditing">
+              </div>
+              <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Dernière évaluation</label>
+                <input type="date" formControlName="last_evaluated_date" [readonly]="!isEditing"
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                       [class.bg-gray-100]="!isEditing">
+              </div>
+              <div class="flex items-end">
+                <button *ngIf="isEditing" type="button" (click)="removeSkill(i)" 
+                        class="btn bg-red-500 text-white hover:bg-red-600 w-full">
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div *ngIf="isEditing" class="flex justify-end space-x-4">
+        <button type="button" (click)="toggleEdit()" class="btn btn-secondary">
+          Annuler
+        </button>
+        <button type="submit" [disabled]="!profileForm.valid || saving" class="btn btn-primary">
+          <span *ngIf="!saving">Sauvegarder</span>
+          <span *ngIf="saving">Sauvegarde...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

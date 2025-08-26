@@ -1,0 +1,346 @@
+<div class="p-6">
+  <h2 class="text-3xl font-bold text-primary mb-6">Gestion des Compétences</h2>
+
+  <!-- Tab Navigation -->
+  <div class="mb-6">
+    <nav class="flex space-x-8" aria-label="Tabs">
+      <button (click)="setActiveTab('skills')" 
+              [class]="activeTab === 'skills' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+              class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200">
+        Compétences ({{ skills.length }})
+      </button>
+      <button (click)="setActiveTab('types')" 
+              [class]="activeTab === 'types' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+              class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200">
+        Types de Compétences ({{ skillTypes.length }})
+      </button>
+      <button (click)="setActiveTab('levels')" 
+              [class]="activeTab === 'levels' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+              class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200">
+        Niveaux de Compétences ({{ skillLevels.length }})
+      </button>
+    </nav>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="errorMessage" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm">{{ errorMessage }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="successMessage" class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-md">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm">{{ successMessage }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center text-primary py-8">
+    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    <p class="mt-2">Chargement des données...</p>
+  </div>
+
+  <!-- Skills Tab -->
+  <div *ngIf="activeTab === 'skills' && !loading">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-xl font-semibold text-dark">Compétences</h3>
+      <button (click)="showAddSkillForm()" class="btn btn-primary">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        Ajouter une compétence
+      </button>
+    </div>
+
+    <!-- Skill Form -->
+    <div *ngIf="showSkillForm" class="card mb-6">
+      <h4 class="text-lg font-semibold text-dark mb-4">
+        {{ editingSkill ? 'Modifier la compétence' : 'Nouvelle compétence' }}
+      </h4>
+      <form [formGroup]="skillForm" (ngSubmit)="onSkillSubmit()">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2">Nom de la compétence *</label>
+            <input type="text" formControlName="name" 
+                   class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                   placeholder="Ex: JavaScript, Communication, Leadership...">
+            <div *ngIf="skillForm.get('name')?.invalid && skillForm.get('name')?.touched" 
+                 class="text-red-500 text-xs mt-1">
+              Le nom est requis (minimum 2 caractères)
+            </div>
+          </div>
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2">Type de compétence *</label>
+            <select formControlName="skill_type_id" 
+                    class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+              <option value="">Sélectionner un type</option>
+              <option *ngFor="let type of skillTypes" [value]="type.id">{{ type.type_name }}</option>
+            </select>
+            <div *ngIf="skillForm.get('skill_type_id')?.invalid && skillForm.get('skill_type_id')?.touched" 
+                 class="text-red-500 text-xs mt-1">
+              Le type de compétence est requis
+            </div>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Description</label>
+            <textarea formControlName="description" rows="3" 
+                      class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="Description détaillée de la compétence..."></textarea>
+          </div>
+        </div>
+        <div class="mt-6 flex gap-2">
+          <button type="submit" [disabled]="!skillForm.valid" 
+                  class="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
+            {{ editingSkill ? 'Mettre à jour' : 'Créer' }}
+          </button>
+          <button type="button" (click)="cancelAllForms()" class="btn btn-secondary">
+            Annuler
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Skills List -->
+    <div class="card">
+      <div *ngIf="skills.length === 0" class="text-center text-gray-600 py-8">
+        <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+        </svg>
+        <p>Aucune compétence trouvée.</p>
+        <p class="text-sm text-gray-500 mt-1">Commencez par ajouter votre première compétence.</p>
+      </div>
+
+      <div *ngIf="skills.length > 0" class="overflow-x-auto">
+        <table class="min-w-full table-auto">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let skill of skills" class="hover:bg-gray-50 transition-colors duration-150">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ skill.name }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  {{ getSkillTypeName(skill.skill_type_id || 0) }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{{ skill.description || '-' }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button (click)="editSkill(skill)" class="text-primary hover:text-blue-700 mr-3 transition-colors duration-150">
+                  Modifier
+                </button>
+                <button (click)="deleteSkill(skill)" class="text-red-600 hover:text-red-900 transition-colors duration-150">
+                  Supprimer
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skill Types Tab -->
+  <div *ngIf="activeTab === 'types' && !loading">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-xl font-semibold text-dark">Types de Compétences</h3>
+      <button (click)="showAddSkillTypeForm()" class="btn btn-primary">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        Ajouter un type
+      </button>
+    </div>
+
+    <!-- Skill Type Form -->
+    <div *ngIf="showSkillTypeForm" class="card mb-6">
+      <h4 class="text-lg font-semibold text-dark mb-4">
+        {{ editingSkillType ? 'Modifier le type' : 'Nouveau type de compétence' }}
+      </h4>
+      <form [formGroup]="skillTypeForm" (ngSubmit)="onSkillTypeSubmit()">
+        <div class="grid grid-cols-1 gap-4">
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2">Nom du type *</label>
+            <input type="text" formControlName="type_name" 
+                   class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                   placeholder="Ex: Savoir, Savoir-faire, Savoir-être...">
+            <div *ngIf="skillTypeForm.get('type_name')?.invalid && skillTypeForm.get('type_name')?.touched" 
+                 class="text-red-500 text-xs mt-1">
+              Le nom du type est requis (minimum 2 caractères)
+            </div>
+          </div>
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2">Description</label>
+            <textarea formControlName="description" rows="3" 
+                      class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="Description du type de compétence..."></textarea>
+          </div>
+        </div>
+        <div class="mt-6 flex gap-2">
+          <button type="submit" [disabled]="!skillTypeForm.valid" 
+                  class="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
+            {{ editingSkillType ? 'Mettre à jour' : 'Créer' }}
+          </button>
+          <button type="button" (click)="cancelAllForms()" class="btn btn-secondary">
+            Annuler
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Skill Types List -->
+    <div class="card">
+      <div *ngIf="skillTypes.length === 0" class="text-center text-gray-600 py-8">
+        <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+        </svg>
+        <p>Aucun type de compétence trouvé.</p>
+        <p class="text-sm text-gray-500 mt-1">Commencez par ajouter votre premier type.</p>
+      </div>
+
+      <div *ngIf="skillTypes.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div *ngFor="let skillType of skillTypes" class="border rounded-lg p-4 hover:shadow-md transition-shadow duration-200 bg-white">
+          <div class="flex justify-between items-start mb-3">
+            <h5 class="font-semibold text-dark text-lg">{{ skillType.type_name }}</h5>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              ID: {{ skillType.id }}
+            </span>
+          </div>
+          <p class="text-gray-600 text-sm mb-4 min-h-[3rem]">{{ skillType.description || 'Aucune description' }}</p>
+          <div class="flex space-x-2">
+            <button (click)="editSkillType(skillType)" 
+                    class="flex-1 text-primary hover:text-blue-700 text-sm font-medium transition-colors duration-150">
+              Modifier
+            </button>
+            <button (click)="deleteSkillType(skillType)" 
+                    class="flex-1 text-red-600 hover:text-red-900 text-sm font-medium transition-colors duration-150">
+              Supprimer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skill Levels Tab -->
+  <div *ngIf="activeTab === 'levels' && !loading">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-xl font-semibold text-dark">Niveaux de Compétences</h3>
+      <button (click)="showAddSkillLevelForm()" class="btn btn-primary">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        Ajouter un niveau
+      </button>
+    </div>
+
+    <!-- Skill Level Form -->
+    <div *ngIf="showSkillLevelForm" class="card mb-6">
+      <h4 class="text-lg font-semibold text-dark mb-4">
+        {{ editingSkillLevel ? 'Modifier le niveau' : 'Nouveau niveau de compétence' }}
+      </h4>
+      <form [formGroup]="skillLevelForm" (ngSubmit)="onSkillLevelSubmit()">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2">Nom du niveau *</label>
+            <input type="text" formControlName="level_name" 
+                   class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                   placeholder="Ex: Débutant, Intermédiaire, Expert...">
+            <div *ngIf="skillLevelForm.get('level_name')?.invalid && skillLevelForm.get('level_name')?.touched" 
+                 class="text-red-500 text-xs mt-1">
+              Le nom du niveau est requis (minimum 2 caractères)
+            </div>
+          </div>
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2">Valeur numérique *</label>
+            <input type="number" formControlName="value" min="1" max="10"
+                   class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                   placeholder="1-10">
+            <div *ngIf="skillLevelForm.get('value')?.invalid && skillLevelForm.get('value')?.touched" 
+                 class="text-red-500 text-xs mt-1">
+              La valeur est requise (entre 1 et 10)
+            </div>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Description</label>
+            <textarea formControlName="description" rows="3" 
+                      class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="Description du niveau de compétence..."></textarea>
+          </div>
+        </div>
+        <div class="mt-6 flex gap-2">
+          <button type="submit" [disabled]="!skillLevelForm.valid" 
+                  class="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
+            {{ editingSkillLevel ? 'Mettre à jour' : 'Créer' }}
+          </button>
+          <button type="button" (click)="cancelAllForms()" class="btn btn-secondary">
+            Annuler
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Skill Levels List -->
+    <div class="card">
+      <div *ngIf="skillLevels.length === 0" class="text-center text-gray-600 py-8">
+        <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+        </svg>
+        <p>Aucun niveau de compétence trouvé.</p>
+        <p class="text-sm text-gray-500 mt-1">Commencez par ajouter votre premier niveau.</p>
+      </div>
+
+      <div *ngIf="skillLevels.length > 0" class="overflow-x-auto">
+        <table class="min-w-full table-auto">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Niveau</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valeur</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let level of skillLevels" class="hover:bg-gray-50 transition-colors duration-150">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ level.level_name }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                      [class]="'bg-blue-' + (level.value * 100) + ' text-blue-800'">
+                  {{ level.value }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{{ level.description || '-' }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button (click)="editSkillLevel(level)" class="text-primary hover:text-blue-700 mr-3 transition-colors duration-150">
+                  Modifier
+                </button>
+                <button (click)="deleteSkillLevel(level)" class="text-red-600 hover:text-red-900 transition-colors duration-150">
+                  Supprimer
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

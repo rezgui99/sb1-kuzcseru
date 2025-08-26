@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  backend:
+    build: .
+    ports:
+      - "${BACKEND_PORT}:3000"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - db
+    command: nodemon
+    env_file:
+      - .env
+
+  fastapi:
+    build:
+      context: ./fast_api
+      dockerfile: Dockerfile
+    container_name: fastapi_app
+    ports:
+      - "${FAST_API_PORT}:8000"
+    volumes:
+      - ./fast_api:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+  db:
+    image: postgres:15
+    ports:
+      - "${DB_PORT}:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "${ADMINER_PORT}:8080"
+    depends_on:
+      - db
+
+volumes:
+  pgdata:

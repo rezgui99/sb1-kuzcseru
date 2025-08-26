@@ -1,0 +1,157 @@
+<div class="p-6">
+  <h2 class="text-3xl font-bold text-primary mb-6">Matching Intelligent</h2>
+  
+  <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm text-blue-700">
+          <strong>Algorithme de Matching :</strong> Notre système analyse les compétences requises pour chaque poste et les compare avec les compétences des employés pour calculer un score de compatibilité précis.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-6">
+    <h3 class="text-xl font-semibold text-dark mb-4">🎯 Trouver les meilleurs candidats pour un poste</h3>
+    <div class="mb-4">
+      <label for="jobDescriptionSelect" class="block text-gray-700 text-sm font-bold mb-2">Sélectionner une fiche de poste:</label>
+      <select id="jobDescriptionSelect" [(ngModel)]="selectedJobId" (change)="onJobSelect()"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        <option [ngValue]="null" disabled>-- Choisir une fiche de poste --</option>
+        <option *ngFor="let job of jobDescriptions" [ngValue]="job.id">
+          {{ job.emploi }} ({{ job.filiere_activite }})
+        </option>
+      </select>
+    </div>
+    <div class="flex gap-4">
+      <button (click)="performMatching()" [disabled]="!selectedJobId || loadingMatching" class="btn btn-primary">
+        <span *ngIf="!loadingMatching">Lancer le Matching</span>
+        <span *ngIf="loadingMatching">Chargement...</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Section Affectation Automatique -->
+  <div *ngIf="matchingResults.length > 0" class="card mb-6 bg-gradient-to-r from-green-50 to-blue-50 border-l-4 border-green-400">
+    <h3 class="text-xl font-semibold text-dark mb-4">🤖 Affectation Automatique</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-gray-700 text-sm font-bold mb-2">Score minimum requis: {{ minScoreForAssignment }}%</label>
+        <input type="range" [(ngModel)]="minScoreForAssignment" min="50" max="100" step="5" 
+               class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+        <div class="flex justify-between text-xs text-gray-500 mt-1">
+          <span>50%</span>
+          <span>75%</span>
+          <span>100%</span>
+        </div>
+      </div>
+      <div>
+        <label class="block text-gray-700 text-sm font-bold mb-2">Nombre max d'affectations: {{ maxAssignments }}</label>
+        <input type="range" [(ngModel)]="maxAssignments" min="1" max="10" step="1" 
+               class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+        <div class="flex justify-between text-xs text-gray-500 mt-1">
+          <span>1</span>
+          <span>5</span>
+          <span>10</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mb-4 p-3 bg-blue-100 rounded-md">
+      <p class="text-sm text-blue-800">
+        <strong>Candidats éligibles:</strong> 
+        {{ eligibleCandidates.length }} employé(s) 
+        avec un score ≥ {{ minScoreForAssignment }}%
+      </p>
+    </div>
+
+    <button (click)="performAutoAssignment()" 
+            [disabled]="loadingAutoAssignment || eligibleCandidates.length === 0" 
+            class="btn btn-primary bg-green-600 hover:bg-green-700">
+      <span *ngIf="!loadingMatching">Lancer le Matching</span>
+      <span *ngIf="loadingMatching">Chargement...</span>
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+      </svg>
+      <span *ngIf="!loadingAutoAssignment">Affectation Automatique</span>
+      <span *ngIf="loadingAutoAssignment">Affectation en cours...</span>
+    </button>
+  </div>
+
+  <div *ngIf="loadingMatching" class="text-center text-primary mb-4">
+    Calcul du matching en cours...
+  </div>
+
+  <div *ngIf="matchingErrorMessage" class="mt-4 p-3 bg-red-100 text-red-700 rounded-md">
+    {{ matchingErrorMessage }}
+  </div>
+
+  <!-- Messages d'affectation automatique -->
+  <div *ngIf="autoAssignmentMessage" class="mt-4 p-4 rounded-md" 
+       [class]="autoAssignmentMessage.includes('✅') ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'">
+    <pre class="whitespace-pre-wrap font-sans">{{ autoAssignmentMessage }}</pre>
+  </div>
+
+  <div *ngIf="matchingResults.length > 0" class="mt-8">
+    <h3 class="text-2xl font-bold text-primary mb-4">Résultats du Matching</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <app-employee-card *ngFor="let result of matchingResults"
+                         [employee]="getEmployeeFromResult(result)"
+                         [matchingScore]="result.score">
+      </app-employee-card>
+    </div>
+  </div>
+
+  <div *ngIf="matchingResults.length === 0 && selectedJobId && !loadingMatching && !matchingErrorMessage" class="mt-8 text-center text-gray-600">
+    Aucun employé correspondant trouvé pour cette fiche de poste.
+  </div>
+
+  <!-- Inverse Matching Section -->
+  <div class="card mt-12">
+    <h3 class="text-xl font-semibold text-dark mb-4">🔄 Matching Inverse: Opportunités pour un employé</h3>
+    <div class="mb-4">
+      <label for="employeeSelect" class="block text-gray-700 text-sm font-bold mb-2">Sélectionner un employé:</label>
+      <select id="employeeSelect" [(ngModel)]="selectedEmployeeId" (change)="onEmployeeSelect()"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        <option [ngValue]="null" disabled>-- Choisir un employé --</option>
+        <option *ngFor="let emp of employees" [ngValue]="emp.id">
+          {{ emp.name }} ({{ emp.position }})
+        </option>
+      </select>
+    </div>
+    <button (click)="performInverseMatching()" [disabled]="!selectedEmployeeId || loadingInverseMatching" class="btn btn-primary">
+      <span *ngIf="!loadingInverseMatching">Lancer le Matching Inverse</span>
+      <span *ngIf="loadingInverseMatching">Chargement...</span>
+    </button>
+  </div>
+
+  <div *ngIf="loadingInverseMatching" class="text-center text-primary mb-4">
+    Calcul du matching inverse en cours...
+  </div>
+
+  <div *ngIf="inverseMatchingErrorMessage" class="mt-4 p-3 bg-red-100 text-red-700 rounded-md">
+    {{ inverseMatchingErrorMessage }}
+  </div>
+
+  <div *ngIf="inverseMatchingResults.length > 0" class="mt-8">
+    <h3 class="text-2xl font-bold text-primary mb-4">📊 Opportunités de Poste</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let result of inverseMatchingResults" class="card mb-4">
+        <h3 class="text-xl font-semibold text-primary">{{ getJobDescriptionFromResult(result)?.emploi }}</h3>
+        <p class="text-dark">{{ getJobDescriptionFromResult(result)?.filiere_activite }}</p>
+        <div class="mt-4 text-lg font-bold text-green-600">
+          Score de correspondance: {{ result.score | number:'1.0-2' }}%
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="inverseMatchingResults.length === 0 && selectedEmployeeId && !loadingInverseMatching && !inverseMatchingErrorMessage" class="mt-8 text-center text-gray-600">
+    Aucune opportunité de poste trouvée pour cet employé.
+  </div>
+</div>

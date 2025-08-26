@@ -1,0 +1,446 @@
+<div class="p-6">
+  <h2 class="text-3xl font-bold text-primary mb-6">Liste des Employés</h2>
+
+  <!-- Toggle View Mode -->
+  <div class="mb-6">
+    <div class="flex space-x-4">
+      <button (click)="switchView('list')" 
+              [class]="viewMode === 'list' ? 'btn btn-primary' : 'btn btn-secondary'">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+        </svg>
+        Vue Liste
+      </button>
+      <button (click)="switchView('skills')" 
+              [class]="viewMode === 'skills' ? 'btn btn-primary' : 'btn btn-secondary'">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+        </svg>
+        Vue Compétences
+      </button>
+    </div>
+  </div>
+
+  <!-- Bouton d'ajout -->
+  <div *ngIf="viewMode === 'list'" class="mb-4">
+    <button (click)="showAddForm = !showAddForm" class="btn btn-primary">
+      {{ showAddForm ? 'Annuler' : 'Ajouter un employé' }}
+    </button>
+  </div>
+
+  <!-- Formulaire d'ajout/modification -->
+  <div *ngIf="(showAddForm || editingEmployee) && viewMode === 'list'" class="card mb-6">
+    <h3 class="text-xl font-semibold text-dark mb-4">
+      {{ editingEmployee ? 'Modifier l\'employé' : 'Ajouter un employé' }}
+    </h3>
+    <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2">Nom *</label>
+          <input type="text" formControlName="name" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2">Poste *</label>
+          <input type="text" formControlName="position" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2">Email *</label>
+          <input type="email" formControlName="email" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2">Date d'embauche *</label>
+          <input type="date" formControlName="hire_date" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2">Téléphone</label>
+          <input type="tel" formControlName="phone" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2">Genre</label>
+          <select formControlName="gender" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+            <option value="">Sélectionner</option>
+            <option value="Homme">Homme</option>
+            <option value="Femme">Femme</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2">Localisation</label>
+          <input type="text" formControlName="location" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2">Fiche de poste</label>
+          <select formControlName="job_description_id" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+            <option value="">-- Aucune fiche assignée --</option>
+            <option *ngFor="let job of jobDescriptions" [value]="job.id">
+              {{ job.emploi }} - {{ job.filiere_activite }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="mt-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2">Notes</label>
+        <textarea formControlName="notes" rows="3" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
+      </div>
+
+        <!-- Section Compétences -->
+        <div class="col-span-1 md:col-span-2 mt-6">
+          <div class="flex justify-between items-center mb-4">
+            <h4 class="text-lg font-semibold text-dark">Compétences</h4>
+            <button type="button" (click)="addSkill()" class="btn btn-secondary">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              Ajouter une compétence
+            </button>
+          </div>
+          
+          <div formArrayName="skills" class="space-y-4">
+            <div *ngFor="let skillGroup of skillsFormArray.controls; let i = index" 
+                 [formGroupName]="i" class="border rounded-lg p-4 bg-gray-50">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-gray-700 text-sm font-bold mb-2">Compétence *</label>
+                  <select formControlName="skill_id" 
+                          class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+                    <option value="">Sélectionner une compétence</option>
+                    <option *ngFor="let skill of skills" [value]="skill.id">{{ skill.name }}</option>
+                  </select>
+                  <div *ngIf="skillGroup.get('skill_id')?.invalid && skillGroup.get('skill_id')?.touched" 
+                       class="text-red-500 text-xs mt-1">
+                    Compétence requise
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-gray-700 text-sm font-bold mb-2">Niveau *</label>
+                  <select formControlName="actual_skill_level_id" 
+                          class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+                    <option value="">Sélectionner un niveau</option>
+                    <option *ngFor="let level of skillLevels" [value]="level.id">{{ level.level_name }}</option>
+                  </select>
+                  <div *ngIf="skillGroup.get('actual_skill_level_id')?.invalid && skillGroup.get('actual_skill_level_id')?.touched" 
+                       class="text-red-500 text-xs mt-1">
+                    Niveau requis
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-gray-700 text-sm font-bold mb-2">Date d'acquisition</label>
+                  <input type="date" formControlName="acquired_date" 
+                         class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                  <label class="block text-gray-700 text-sm font-bold mb-2">Certification</label>
+                  <input type="text" formControlName="certification" 
+                         class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                         placeholder="Nom de la certification">
+                </div>
+                <div>
+                  <label class="block text-gray-700 text-sm font-bold mb-2">Dernière évaluation</label>
+                  <input type="date" formControlName="last_evaluated_date" 
+                         class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+                <div class="flex items-end">
+                  <button type="button" (click)="removeSkill(i)" 
+                          class="btn bg-red-500 text-white hover:bg-red-600 w-full">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    Supprimer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div *ngIf="skillsFormArray.length === 0" class="text-center text-gray-600 py-8 border-2 border-dashed border-gray-300 rounded-lg">
+            <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+            </svg>
+            <p>Aucune compétence ajoutée</p>
+            <p class="text-sm text-gray-500 mt-1">Cliquez sur "Ajouter une compétence" pour commencer</p>
+          </div>
+        </div>
+      <div class="mt-6 flex gap-2">
+        <button type="submit" [disabled]="!employeeForm.valid" 
+                class="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          {{ editingEmployee ? 'Mettre à jour' : 'Ajouter' }}
+        </button>
+        <button type="button" (click)="cancelEdit()" class="btn btn-secondary">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          Annuler
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Modal d'affectation automatique au meilleur poste -->
+  <div *ngIf="showAutoAssignModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-10 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white">
+      <div class="mt-3">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium text-gray-900">
+            🎯 Meilleurs postes pour {{ autoAssigningEmployee?.name }}
+          </h3>
+          <button (click)="closeAutoAssignModal()" class="text-gray-400 hover:text-gray-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Loading state -->
+        <div *ngIf="loadingBestMatches" class="text-center py-8">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p class="mt-2 text-gray-600">Analyse des compatibilités en cours...</p>
+        </div>
+
+        <!-- Message -->
+        <div *ngIf="autoAssignMessage" class="mb-4 p-4 rounded-md"
+             [class]="autoAssignMessage.includes('✅') ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'">
+          {{ autoAssignMessage }}
+        </div>
+
+        <!-- Résultats des meilleurs matches -->
+        <div *ngIf="!loadingBestMatches && bestJobMatches.length > 0" class="space-y-4">
+          <p class="text-gray-600 mb-4">
+            Voici les {{ bestJobMatches.length }} postes les plus compatibles avec les compétences de {{ autoAssigningEmployee?.name }} :
+          </p>
+          
+          <div class="grid grid-cols-1 gap-4 max-h-96 overflow-y-auto">
+            <div *ngFor="let match of bestJobMatches; let i = index" 
+                 class="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+              <div class="flex justify-between items-start">
+                <div class="flex-1">
+                  <div class="flex items-center mb-2">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium mr-3"
+                          [class]="i === 0 ? 'bg-gold text-white' : i === 1 ? 'bg-silver text-white' : i === 2 ? 'bg-bronze text-white' : 'bg-gray-200 text-gray-700'">
+                      {{ i + 1 }}
+                    </span>
+                    <div>
+                      <h4 class="text-lg font-semibold text-gray-900">{{ getJobNameFromId(match.job_description_id) }}</h4>
+                      <p class="text-sm text-gray-600">{{ getJobFiliereFromId(match.job_description_id) }}</p>
+                    </div>
+                  </div>
+                  
+                  <!-- Score de compatibilité -->
+                  <div class="mb-3">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-sm font-medium text-gray-700">Score de compatibilité</span>
+                      <span class="text-sm font-bold" 
+                            [class]="match.score >= 80 ? 'text-green-600' : match.score >= 60 ? 'text-yellow-600' : 'text-red-600'">
+                        {{ match.score | number:'1.1-1' }}%
+                      </span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                      <div class="h-2 rounded-full transition-all duration-300"
+                           [class]="match.score >= 80 ? 'bg-green-500' : match.score >= 60 ? 'bg-yellow-500' : 'bg-red-500'"
+                           [style.width.%]="match.score">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Détails des compétences -->
+                  <div *ngIf="match.skill_gap_details && match.skill_gap_details.length > 0" class="mb-3">
+                    <p class="text-sm font-medium text-gray-700 mb-2">Analyse des compétences :</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                      <div *ngFor="let skill of match.skill_gap_details.slice(0, 4)" 
+                           class="flex items-center justify-between p-2 rounded"
+                           [class]="skill.gap >= 0 ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'">
+                        <span class="truncate mr-2">{{ skill.skill_name }}</span>
+                        <span class="font-medium">
+                          {{ skill.actual_skill_level }}/{{ skill.required_skill_level }}
+                          <span *ngIf="skill.gap > 0" class="text-green-600">+{{ skill.gap }}</span>
+                          <span *ngIf="skill.gap < 0" class="text-red-600">{{ skill.gap }}</span>
+                        </span>
+                      </div>
+                    </div>
+                    <p *ngIf="match.skill_gap_details.length > 4" class="text-xs text-gray-500 mt-1">
+                      ... et {{ match.skill_gap_details.length - 4 }} autres compétences
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Bouton d'affectation -->
+                <div class="ml-4">
+                  <button (click)="assignToBestJob(match.job_description_id, match.score)" 
+                          class="btn btn-primary text-sm"
+                          [class]="i === 0 ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    {{ i === 0 ? 'Affecter (Recommandé)' : 'Affecter' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- État vide -->
+        <div *ngIf="!loadingBestMatches && bestJobMatches.length === 0 && !autoAssignMessage" 
+             class="text-center py-8 text-gray-600">
+          <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <p>Aucun poste compatible trouvé.</p>
+          <p class="text-sm text-gray-500 mt-1">Cet employé pourrait avoir besoin de formation supplémentaire.</p>
+        </div>
+
+        <!-- Boutons de fermeture -->
+        <div class="flex justify-end mt-6">
+          <button (click)="closeAutoAssignModal()" class="btn btn-secondary">
+            Fermer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liste des employés -->
+  <div *ngIf="viewMode === 'list'" class="card">
+    <!-- Modal d'affectation à une fiche de poste -->
+    <div *ngIf="showAssignJobForm" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">
+            Affecter {{ assigningEmployee?.name }} à une fiche de poste
+          </h3>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Sélectionner une fiche de poste:</label>
+            <select [(ngModel)]="selectedJobId" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+              <option [ngValue]="null">-- Aucune fiche --</option>
+              <option *ngFor="let job of jobDescriptions" [ngValue]="job.id">
+                {{ job.emploi }} - {{ job.filiere_activite }}
+              </option>
+            </select>
+          </div>
+          <div class="flex justify-end space-x-2">
+            <button (click)="cancelAssignJob()" class="btn btn-secondary">
+              Annuler
+            </button>
+            <button (click)="assignToJob()" class="btn btn-primary">
+              Affecter
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full table-auto">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Poste</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date d'embauche</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fiche de poste</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Compétences</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let employee of employees" class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ employee.name }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ employee.position }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ employee.email }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ employee.hire_date | date:'dd/MM/yyyy' }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <span *ngIf="employee.job_description_id" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                {{ getJobDescriptionName(employee.job_description_id) }}
+                <button (click)="unassignFromJob(employee)" class="ml-2 text-red-600 hover:text-red-800" title="Désaffecter">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </span>
+              <span *ngIf="!employee.job_description_id" class="text-gray-400">Non assigné</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                {{ employee.skills?.length || getEmployeeSkills(employee.id!).length }} compétences
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <button [routerLink]="['/profile', employee.id]" class="text-green-600 hover:text-green-900 mr-3">Profil</button>
+              <button (click)="showAssignJob(employee)" class="text-purple-600 hover:text-purple-900 mr-3">Affecter</button>
+              <button (click)="findBestJobForEmployee(employee)" class="text-blue-600 hover:text-blue-900 mr-3">Meilleur poste</button>
+              <button (click)="editEmployee(employee)" class="text-primary hover:text-blue-700 mr-3">Modifier</button>
+              <button (click)="deleteEmployee(employee)" class="text-red-600 hover:text-red-900">Supprimer</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Vue Compétences des Employés -->
+  <div *ngIf="viewMode === 'skills'">
+    <div *ngIf="loadingSkills" class="text-center text-primary py-8">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <p class="mt-2">Chargement des compétences...</p>
+    </div>
+
+    <div *ngIf="!loadingSkills && employeeSkills.length === 0" class="text-center text-gray-600 py-8">
+      <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+      </svg>
+      <p>Aucune compétence d'employé trouvée.</p>
+      <p class="text-sm text-gray-500 mt-1">Les employés n'ont pas encore de compétences assignées.</p>
+    </div>
+
+    <div *ngIf="!loadingSkills && employeeSkills.length > 0">
+      <!-- Grouper par employé -->
+      <div *ngFor="let employee of employees" class="mb-8">
+        <div *ngIf="getEmployeeSkills(employee.id!).length > 0">
+          <div class="card">
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center">
+                <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white text-xl font-bold mr-4">
+                  {{ employee.name.charAt(0).toUpperCase() }}
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold text-dark">{{ employee.name }}</h3>
+                  <p class="text-gray-600">{{ employee.position }}</p>
+                  <p class="text-sm text-gray-500">{{ employee.email }}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                  {{ getEmployeeSkills(employee.id!).length }} compétences
+                </span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <app-employee-skill 
+                *ngFor="let skill of getEmployeeSkills(employee.id!)" 
+                [employeeSkill]="skill"
+                [canEdit]="true"
+                (onEdit)="editSkill($event)"
+                (onDelete)="deleteSkill($event)">
+              </app-employee-skill>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="employees.length === 0 && !loading" class="text-center text-gray-600 mt-4">
+    Aucun employé trouvé.
+  </div>
+
+  <div *ngIf="loading" class="text-center text-primary mt-4">
+    Chargement des employés...
+  </div>
+
+  <div *ngIf="errorMessage" class="mt-4 p-3 bg-red-100 text-red-700 rounded-md">
+    {{ errorMessage }}
+  </div>
+</div>

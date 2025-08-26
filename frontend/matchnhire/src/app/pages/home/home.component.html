@@ -1,0 +1,54 @@
+<div class="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] bg-light p-6">
+  <!-- Hero Section -->
+  <div class="text-center mb-12">
+    <h1 class="text-5xl font-extrabold text-primary mb-4">Bienvenue sur MatchnHire</h1>
+    <p class="text-xl text-dark max-w-3xl mx-auto">
+      Plateforme intelligente de gestion des ressources humaines et de matching de compétences. Optimisez vos recrutements et développez les talents de votre organisation.
+    </p>
+  </div>
+
+  <!-- Navigation Buttons -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl">
+    <div class="card flex flex-col items-center p-8">
+      <svg class="w-16 h-16 text-secondary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H2v-2a3 3 0 015.356-1.857M17 20v-2c0-.653-.146-1.28-.42-1.857M7 20v-2c0-.653.146-1.28.42-1.857M7 20h10m0 0a3 3 0 00-5.356-1.857M7 16.143A3 3 0 0112 13c1.482 0 2.86.51 3.944 1.386M12 14a3 3 0 100-6 3 3 0 000 6z"></path></svg>
+      <h2 class="text-2xl font-semibold text-dark mb-3">Gérer les Employés</h2>
+      <p class="text-gray-600 text-center mb-4">Accédez à la liste complète de vos employés et leurs informations.</p>
+      <button routerLink="/employees" class="btn btn-primary">Voir les employés</button>
+    </div>
+
+    <div class="card flex flex-col items-center p-8">
+      <svg class="w-16 h-16 text-secondary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+      <h2 class="text-2xl font-semibold text-dark mb-3">Fiches de Poste</h2>
+      <p class="text-gray-600 text-center mb-4">Créez et gérez vos fiches de poste avec les compétences requises.</p>
+      <button routerLink="/job-descriptions" class="btn btn-primary">Gérer les fiches</button>
+    </div>
+
+    <div class="card flex flex-col items-center p-8">
+      <svg class="w-16 h-16 text-secondary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+      <h2 class="text-2xl font-semibold text-dark mb-3">Faire du Matching</h2>
+      <p class="text-gray-600 text-center mb-4">Trouvez les meilleurs profils pour vos fiches de poste.</p>
+      <button routerLink="/matching" class="btn btn-primary">Lancer un matching</button>
+    </div>
+
+    <div class="card flex flex-col items-center p-8">
+      <svg class="w-16 h-16 text-secondary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+      <h2 class="text-2xl font-semibold text-dark mb-3">Gestion des Compétences</h2>
+      <p class="text-gray-600 text-center mb-4">Administrez le référentiel de compétences et niveaux.</p>
+      <button routerLink="/skills-management" class="btn btn-primary">Gérer les compétences</button>
+    </div>
+
+    <div class="card flex flex-col items-center p-8">
+      <svg class="w-16 h-16 text-secondary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+      <h2 class="text-2xl font-semibold text-dark mb-3">Voir les Statistiques</h2>
+      <p class="text-gray-600 text-center mb-4">Tableaux de bord et analytics RH avancés.</p>
+      <button routerLink="/statistics" class="btn btn-primary">Accéder aux statistiques</button>
+    </div>
+
+    <div class="card flex flex-col items-center p-8">
+      <svg class="w-16 h-16 text-secondary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H2v-2a3 3 0 015.356-1.857M17 20v-2c0-.653-.146-1.28-.42-1.857M7 20v-2c0-.653.146-1.28.42-1.857M7 20h10m0 0a3 3 0 00-5.356-1.857M7 16.143A3 3 0 0112 13c1.482 0 2.86.51 3.944 1.386M12 14a3 3 0 100-6 3 3 0 000 6z"></path></svg>
+      <h2 class="text-2xl font-semibold text-dark mb-3">Organigramme</h2>
+      <p class="text-gray-600 text-center mb-4">Visualisez la structure organisationnelle et les relations hiérarchiques.</p>
+      <button routerLink="/organigramme" class="btn btn-primary">Voir l'organigramme</button>
+    </div>
+  </div>
+</div>
