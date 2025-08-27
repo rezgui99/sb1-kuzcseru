@@ -1,0 +1,41 @@
+/* Login component specific styles */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Custom focus styles */
+.focus\:ring-primary:focus {
+  --tw-ring-color: #2196F3;
+}
+
+.focus\:border-primary:focus {
+  --tw-border-opacity: 1;
+  border-color: #2196F3;
+}
+
+/* Hover effects */
+.hover\:bg-blue-700:hover {
+  background-color: #1976D2;
+}
+
+.hover\:text-blue-500:hover {
+  color: #2196F3;
+}
+
+/* Disabled state */
+.disabled\:opacity-50:disabled {
+  opacity: 0.5;
+}
+
+.disabled\:cursor-not-allowed:disabled {
+  cursor: not-allowed;
+}
